@@ -6,8 +6,17 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 // get all products and associated Category and Tag data
 router.get("/", async (req, res) => {
   try {
-    const productData = await Product.findAll(req.body, {
-      include: [{ model: Category }, { model: Tag }], // through: ?? as: ??
+    const productData = await Product.findAll({
+      include: [
+        {
+          model: Category,
+          attributes: ["id", "category_name"],
+        },
+        {
+          model: Tag,
+          attributes: ["id", "tag_name"],
+        },
+      ],
     });
     if (!productData) {
       res.status(404).json({ message: "No products found." });
@@ -22,8 +31,20 @@ router.get("/", async (req, res) => {
 // get one product by `id` include associated Category and Tag data
 router.get("/:id", async (req, res) => {
   try {
-    const productData = await Product.findByPk(req.params.id, {
-      include: [{ model: Category }, { model: Tag }], // through: ?? as: ??
+    const productData = await Product.findByPk({
+      where: {
+        id: req.params.id,
+      },
+      include: [
+        {
+          model: Category,
+          attributes: ["id", "category_name"],
+        },
+        {
+          model: Tag,
+          attributes: ["id", "tag_name"],
+        },
+      ],
     });
     if (!productData) {
       res.status(404).json({ message: "No product found with this id!" });
@@ -37,15 +58,13 @@ router.get("/:id", async (req, res) => {
 
 // create new product
 router.post("/", (req, res) => {
-  /* req.body should look like this...
-    {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
-    }
-  */
-  Product.create(req.body)
+  Product.create({
+    product_name: req.body.product_name,
+    price: req.body.price,
+    stock: req.body.stock,
+    category_id: req.body.category_id,
+    tagIds: req.body.tag_id,
+  })
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
       if (req.body.tagIds.length) {
