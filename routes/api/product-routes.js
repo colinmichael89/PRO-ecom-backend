@@ -34,13 +34,13 @@ router.get("/:id", async (req, res) => {
     const productData = await Product.findByPk(req.params.id, {
       include: [
         {
-          model: Category,
-          attributes: ["id", "category_name"],
-        },
-        {
           model: Tag,
           attributes: ["id", "tag_name"],
           through: "ProductTag",
+        },
+        {
+          model: Category,
+          attributes: ["id", "category_name"],
         },
       ],
     });
@@ -123,7 +123,7 @@ router.put("/:id", (req, res) => {
 // delete one product by its `id` value
 router.delete("/:id", async (req, res) => {
   try {
-    const productData = await Product.destroy({
+    const productData = await Category.destroy({
       where: {
         id: req.params.id,
       },
